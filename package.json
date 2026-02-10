@@ -1,0 +1,88 @@
+{
+  "name": "mcp-markdown-bible-enricher",
+  "version": "0.0.1",
+  "description": "MCP server for Catholic Bible study. Enriches markdown with Bible Gateway links (NRSVCE), Obsidian wiki-links, and CCC Catechism references. Supports all 73 books of the Catholic Bible including 7 deuterocanonical books (Tobit, Judith, Wisdom, Sirach, Baruch, 1-2 Maccabees).",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "prebuild": "npm run clean",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "npx tsx --watch src/index.ts",
+    "inspect": "npx @modelcontextprotocol/inspector node dist/index.js",
+    "lint": "eslint src/**/*.ts",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/psenger/mcp-markdown-bible-enricher.git"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.2.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.0.0",
+    "eslint": "^9.0.0",
+    "jest": "^30.2.0",
+    "prettier": "^3.4.0",
+    "ts-jest": "^29.4.6",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.0.0"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "bible",
+    "scripture",
+    "catechism",
+    "ccc",
+    "markdown",
+    "enricher",
+    "bible-references",
+    "bible-links",
+    "catholic",
+    "catholic-bible",
+    "deuterocanonical",
+    "nrsvce",
+    "obsidian",
+    "bible-study",
+    "theology",
+    "bible-gateway",
+    "ai",
+    "llm",
+    "claude",
+    "anthropic"
+  ],
+  "author": {
+    "name": "Philip A. Senger",
+    "url": "https://github.com/psenger"
+  },
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/psenger/mcp-markdown-bible-enricher/issues"
+  },
+  "homepage": "https://github.com/psenger/mcp-markdown-bible-enricher#readme",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/psenger"
+  }
+}
