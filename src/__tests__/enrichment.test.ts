@@ -189,6 +189,107 @@ See also Genesis 50:20 and CCC 312-314 for more context.
     });
   });
 
+  describe('bare chapter references', () => {
+    test('Isaiah 53 generates a Bible Gateway link and Obsidian chapter link', () => {
+      const output = enrichMarkdown('Isaiah 53');
+      expect(output).toContain('[Isaiah 53](https://www.biblegateway.com/passage/?search=Isaiah%2053&version=NRSVCE)');
+      expect(output).toContain('[[Isa-53]]');
+    });
+
+    test('Psalm 91 generates a Bible Gateway link and Obsidian chapter link', () => {
+      const output = enrichMarkdown('Psalm 91');
+      expect(output).toContain('[Psalm 91](https://www.biblegateway.com/passage/?search=Psalm%2091&version=NRSVCE)');
+      expect(output).toContain('[[Ps-91]]');
+    });
+
+    test('John 3 generates a link', () => {
+      const output = enrichMarkdown('John 3');
+      expect(output).toContain('[John 3]');
+      expect(output).toContain('[[John-03]]');
+    });
+
+    test('1 Corinthians 13 generates a link', () => {
+      const output = enrichMarkdown('1 Corinthians 13');
+      expect(output).toContain('[1 Corinthians 13]');
+      expect(output).toContain('[[1 Cor-13]]');
+    });
+
+    test('mixed content: James 5:7; Isaiah 5:1-7; Psalm 91; all enriched', () => {
+      const output = enrichMarkdown('James 5:7; Isaiah 5:1-7; Psalm 91;');
+      expect(output).toContain('[James 5:7]');
+      expect(output).toContain('[Isaiah 5:1-7]');
+      expect(output).toContain('[Psalm 91]');
+    });
+
+    test('bare chapter ref does not consume existing chapter:verse ref', () => {
+      const output = enrichMarkdown('John 3:16');
+      expect(output).toContain('[John 3:16]');
+      // must NOT also produce a bare-chapter link for "John 3"
+      expect(output).not.toContain('[John 3]');
+    });
+
+    test('idempotency — enrichMarkdown is stable for Isaiah 53', () => {
+      const once = enrichMarkdown('Isaiah 53');
+      const twice = enrichMarkdown(once);
+      expect(twice).toBe(once);
+    });
+
+    test('already-linked Isaiah 53 is not double-enriched', () => {
+      const input = '[Isaiah 53](https://www.biblegateway.com/passage/?search=Isaiah%2053&version=NRSVCE)';
+      expect(enrichMarkdown(input)).toBe(input);
+    });
+  });
+
+  describe('single-chapter books — bare verse references', () => {
+    test('Jude 9 generates Bible Gateway link for Jude 1:9', () => {
+      const output = enrichMarkdown('Jude 9');
+      expect(output).toContain('[Jude 9](https://www.biblegateway.com/passage/?search=Jude%201%3A9&version=NRSVCE)');
+    });
+
+    test('Jude 9-14 generates Bible Gateway link and Obsidian range links', () => {
+      const output = enrichMarkdown('Jude 9-14');
+      expect(output).toContain('[Jude 9-14](https://www.biblegateway.com/passage/?search=Jude%201%3A9-14&version=NRSVCE)');
+      expect(output).toContain('[[Jude#v9]]');
+      expect(output).toContain('[[Jude#v14]]');
+    });
+
+    test('Obadiah 21 generates a link', () => {
+      const output = enrichMarkdown('Obadiah 21');
+      expect(output).toContain('[Obadiah 21]');
+      expect(output).toContain('Obadiah%201%3A21');
+    });
+
+    test('Philemon 25 generates a link', () => {
+      const output = enrichMarkdown('Philemon 25');
+      expect(output).toContain('[Philemon 25]');
+      expect(output).toContain('Philemon%201%3A25');
+    });
+
+    test('2 John 1 generates a link', () => {
+      const output = enrichMarkdown('2 John 1');
+      expect(output).toContain('[2 John 1]');
+      expect(output).toContain('2%20John%201%3A1');
+    });
+
+    test('3 John 14 generates a link', () => {
+      const output = enrichMarkdown('3 John 14');
+      expect(output).toContain('[3 John 14]');
+      expect(output).toContain('3%20John%201%3A14');
+    });
+
+    test('enrichMarkdown is idempotent for Jude 9', () => {
+      const once = enrichMarkdown('Jude 9');
+      const twice = enrichMarkdown(once);
+      expect(twice).toBe(once);
+    });
+
+    test('already-linked Jude 9 is not double-enriched', () => {
+      const input = '[Jude 9](https://www.biblegateway.com/passage/?search=Jude%201%3A9&version=NRSVCE)';
+      const output = enrichMarkdown(input);
+      expect(output).toBe(input);
+    });
+  });
+
   describe('Edge cases', () => {
     test('should handle empty string', () => {
       expect(enrichMarkdown('')).toBe('');
