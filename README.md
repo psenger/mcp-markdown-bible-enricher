@@ -9,6 +9,7 @@
 [![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7+-blue)](https://www.typescriptlang.org/)
 [![Model Context Protocol](https://img.shields.io/badge/MCP-1.12.1-purple)](https://modelcontextprotocol.io/)
+[![Obsidian](https://img.shields.io/badge/Obsidian-compatible-7c3aed)](https://obsidian.md)
 
 [Features](#features) • [Quick Start](#quick-start) • [Installation](#installation) • [Usage](#usage) • [Configuration](#configuration) • [API Reference](#api-reference)
 
@@ -18,7 +19,7 @@
 
 ## Overview
 
-**Bible Enrichment MCP Server** is a [Model Context Protocol](https://modelcontextprotocol.io/) server that automatically transforms plain-text Bible and Catechism references in your Markdown documents into linked references with Bible Gateway URLs and Obsidian wiki-links.
+**Bible Enrichment MCP Server** is a [Model Context Protocol](https://modelcontextprotocol.io/) server that automatically transforms plain-text Bible and Catechism references in your Markdown documents into linked references with Bible Gateway URLs and [Obsidian](https://obsidian.md) wiki-links.
 
 **Catholic Bible Resource:** This tool is designed for the Catholic Bible canon, supporting all **73 books** including the 7 deuterocanonical books:
 - **Tobit** - Righteousness and family
@@ -34,7 +35,7 @@ These 7 books are included in Catholic Bibles but not in Protestant Bibles (whic
 Perfect for:
 - Catholic theologians and researchers
 - Catholic content creators
-- Obsidian vault builders
+- [Obsidian](https://obsidian.md) vault builders
 - Catholic Bible study workflows
 
 ### What It Does
@@ -54,7 +55,7 @@ Read [CCC 528](https://www.catholiccrossreference.online/catechism/#!/search/528
 ## Features
 
 - **Bible Gateway Links** — Every Scripture reference becomes a clickable link to Bible Gateway (NRSVCE translation by default)
-- **Obsidian Wiki-Links** — Automatically generates `[[Book-Ch#vN]]` format for vault cross-referencing
+- **[Obsidian](https://obsidian.md) Wiki-Links** — Automatically generates `[[Book-Ch#vN]]` format for vault cross-referencing
 - **CCC Links** — Catechism of the Catholic Church references link directly to Catholic Cross Reference
 - **Deterministic Parsing** — Regex-based parsing (no LLM required)
 - **Pattern Recognition** — Recognizes complex patterns like `1 Samuel 16:1, 16:4-13` and `CCC 528-530, 610-612`
@@ -151,8 +152,26 @@ npm run dev
 
 #### Claude Code CLI
 
+**Basic installation (project scope):**
 ```bash
-claude mcp add mcp-markdown-bible-enricher -- node /absolute/path/to/mcp-markdown-bible-enricher/dist/index.js
+claude mcp add --transport stdio mcp-markdown-bible-enricher -- node /absolute/path/to/mcp-markdown-bible-enricher/dist/index.js
+```
+
+**With environment variables:**
+```bash
+claude mcp add --transport stdio \
+  --env BIBLE_VERSION=NRSVCE \
+  --env OBSIDIAN_FORMAT="[[{abbrev}-{chapter2}#v{verse}]]" \
+  mcp-markdown-bible-enricher -- node /absolute/path/to/mcp-markdown-bible-enricher/dist/index.js
+```
+
+**Scope options** (`--scope` flag):
+- `project` (default) — adds to `.mcp.json` in the current project directory
+- `user` — adds to your global `~/.claude.json` (available in all projects)
+
+```bash
+# Install globally for all projects
+claude mcp add --transport stdio --scope user mcp-markdown-bible-enricher -- node /absolute/path/to/mcp-markdown-bible-enricher/dist/index.js
 ```
 
 Verify installation:
@@ -219,15 +238,18 @@ Use bible_enrich_file with input_path: "/Users/me/Documents/bible-study.md"
 
 ### Supported Reference Patterns
 
-| Input Pattern    | Example                  | What It Recognizes         |
-|------------------|--------------------------|----------------------------|
-| Single verse     | `John 3:16`              | One verse                  |
-| Verse range      | `Matthew 5:3-12`         | Consecutive verses         |
-| Multiple verses  | `Psalm 23:1, 4, 6`       | Multiple individual verses |
-| Chapter + ranges | `1 Samuel 16:1, 16:4-13` | Mixed patterns             |
-| CCC single       | `CCC 528`                | Single paragraph           |
-| CCC range        | `CCC 528-530`            | Paragraph range            |
-| CCC multiple     | `CCC 528-530, 610-612`   | Multiple ranges            |
+| Input Pattern         | Example                  | What It Recognizes                       |
+|-----------------------|--------------------------|------------------------------------------|
+| Single verse          | `John 3:16`              | One verse                                |
+| Verse range           | `Matthew 5:3-12`         | Consecutive verses                       |
+| Multiple verses       | `Psalm 23:1, 4, 6`       | Multiple individual verses               |
+| Chapter + ranges      | `1 Samuel 16:1, 16:4-13` | Mixed patterns                           |
+| Bare chapter          | `Isaiah 53`              | Entire chapter (no verse needed)         |
+| Single-chapter bare   | `Jude 9`                 | Verse in a single-chapter book           |
+| Single-chapter range  | `Jude 9-14`              | Verse range in a single-chapter book     |
+| CCC single            | `CCC 528`                | Single paragraph                         |
+| CCC range             | `CCC 528-530`            | Paragraph range                          |
+| CCC multiple          | `CCC 528-530, 610-612`   | Multiple ranges                          |
 
 ---
 
@@ -488,7 +510,7 @@ Apocalypse:
 - Revelation → `Rev`
 
 **Notes:**
-- Single-chapter books (Obadiah, Philemon, 2 John, 3 John, Jude) still use chapter:verse format (e.g., "Jude 1:24")
+- Single-chapter books (Obadiah, Philemon, 2 John, 3 John, Jude) support both forms: "Jude 1:9" and "Jude 9"
 - Alternative names: Song of Solomon = Song of Songs, Sirach = Ecclesiasticus = Wisdom of Ben Sira
 - All deuterocanonical books marked above
 
@@ -500,20 +522,24 @@ Apocalypse:
 
 ### Architecture
 
-The enrichment process uses **three sequential regex passes**:
+The enrichment process uses **five sequential regex passes**:
 
 1. **Backtick Unwrapping** — Detects references like `` `1 Samuel 16:1:` `` and removes backticks before processing
-2. **Bible Reference Detection** — Matches plain-text Scripture references (skips existing Markdown links)
-3. **CCC Reference Detection** — Matches Catechism paragraph numbers
+2. **Bible Reference Detection** — Matches plain-text `chapter:verse` Scripture references (skips existing Markdown links)
+3. **Single-Chapter Bare Verse** — Matches bare verse citations in single-chapter books (e.g., `Jude 9`, `Obadiah 21`)
+4. **Bare Chapter References** — Matches chapter-only citations (e.g., `Isaiah 53`, `Psalm 91`)
+5. **CCC Reference Detection** — Matches Catechism paragraph numbers
 
 ### Parsing Strategy
 
 ```mermaid
 graph LR
     A[Input Markdown] --> B[Unwrap Backticks]
-    B --> C[Match Bible Refs]
-    C --> D[Match CCC Refs]
-    D --> E[Output Enriched]
+    B --> C[Match chapter:verse Refs]
+    C --> D[Match Single-Chapter Bare Verse]
+    D --> E[Match Bare Chapter Refs]
+    E --> F[Match CCC Refs]
+    F --> G[Output Enriched]
 ```
 
 **Key Features:**
@@ -530,17 +556,56 @@ Format: `https://www.biblegateway.com/passage/?search={reference}&version=NRSVCE
 - URL encoding handles spaces and special characters
 - Configurable via `BIBLE_VERSION` environment variable
 
-### Obsidian Wiki-Links
+### [Obsidian](https://obsidian.md) Wiki-Links
 
 Format: `[[Book-Ch#vN]]`
 - Example: `[[Matt-05#v3]]` for Matthew 5:3
-- Special case: Single-chapter books use `[[Obad-01#v1]]` for chapter 1
+- Single-chapter books: `[[Jude#v9]]` for Jude 9 (no chapter number in link)
+- Bare chapters: `[[Isa-53]]` for Isaiah 53 (no verse anchor)
+- Configurable via `OBSIDIAN_FORMAT` environment variable
 
 ### CCC Links
 
 Format: `https://www.catholiccrossreference.online/catechism/#!/search/{numbers}`
 - Supports ranges: `528-530`
 - Supports lists: `528, 530, 532`
+
+---
+
+## Obsidian Integration
+
+This server is designed to work seamlessly with [Obsidian](https://obsidian.md) vaults. Bible references are enriched with wiki-links that match Obsidian's `[[Note#heading]]` linking convention.
+
+### Default Wiki-Link Format
+
+| Reference Type | Input | Obsidian Wiki-Link |
+|---|---|---|
+| Verse | `John 3:16` | `[[John-03#v16]]` |
+| Verse range | `Matthew 5:3-12` | `[[Matt-05#v3]] - [[Matt-05#v12]]` |
+| Single-chapter book | `Jude 9` | `[[Jude#v9]]` |
+| Single-chapter range | `Jude 9-14` | `[[Jude#v9]] - [[Jude#v14]]` |
+| Bare chapter | `Isaiah 53` | `[[Isa-53]]` |
+
+### Custom Vault Structures
+
+If your vault uses a different file-naming convention, set `OBSIDIAN_FORMAT` to match:
+
+```bash
+# Flat structure: "Gen 1:1" → [[Gen 1#v1]]
+OBSIDIAN_FORMAT="[[{abbrev} {chapter}#v{verse}]]"
+
+# Nested folders: "Gen 1:1" → [[Bible/Gen/01#v1]]
+OBSIDIAN_FORMAT="[[Bible/{abbrev}/{chapter2}#v{verse}]]"
+
+# Chapter-only files: "Gen 1:1" → [[Gen-01#verse-1]]
+OBSIDIAN_FORMAT="[[{abbrev}-{chapter2}#verse-{verse}]]"
+```
+
+**Available placeholders:**
+- `{abbrev}` — book abbreviation (e.g., `Gen`, `1 Sam`, `Matt`)
+- `{chapter}` — chapter number (e.g., `1`, `16`)
+- `{chapter2}` — zero-padded chapter number (e.g., `01`, `16`)
+- `{verse}` — verse number (e.g., `1`, `28`)
 
 ---
 
@@ -579,9 +644,9 @@ All tool errors are caught and returned with `isError: true` flag. Error message
 - Very complex nested structures may not be detected
 - References inside code blocks (triple backticks) are still enriched
 - References inside inline code (single backticks) are unwrapped and enriched
-- **Chapter:verse format required**: Use "John 3:16", not "John 316"
-- **Single-chapter books need colon**: Use "Jude 1:24", not "Jude 24" (applies to Obadiah, Philemon, 2 John, 3 John, Jude)
 - **CCC requires space**: Use "CCC 528", not "CCC528"
+- Single-chapter books (Obadiah, Philemon, 2 John, 3 John, Jude) support both `Jude 1:9` and `Jude 9` forms
+- Bare chapter references like `Isaiah 53` and `Psalm 91` are supported without a verse number
 
 ### Bible Gateway Limitations
 - Links depend on Bible Gateway's URL structure
@@ -771,7 +836,7 @@ See the [LICENSE](LICENSE) file for full details, or visit [https://www.gnu.org/
 - **Model Context Protocol** — [Anthropic's MCP SDK](https://github.com/anthropics/modelcontextprotocol)
 - **Bible Gateway** — Scripture text and linking
 - **Catholic Cross Reference** — Catechism paragraph linking
-- **Obsidian Community** — Inspiration for wiki-link format
+- **[Obsidian](https://obsidian.md) Community** — Inspiration for wiki-link format ([Obsidian Community Plugins](https://obsidian.md/plugins))
 
 ---
 
