@@ -290,6 +290,150 @@ See also Genesis 50:20 and CCC 312-314 for more context.
     });
   });
 
+  describe('period, colon and ellipsis termination — single-chapter bare verse (pass 2b)', () => {
+    // All 5 single-chapter books: period
+    test('Jude 9. — period after verse', () => {
+      expect(enrichMarkdown('Jude 9.')).toContain('[Jude 9]');
+    });
+    test('Obadiah 21. — period after verse', () => {
+      expect(enrichMarkdown('Obadiah 21.')).toContain('[Obadiah 21]');
+    });
+    test('Philemon 25. — period after verse', () => {
+      expect(enrichMarkdown('Philemon 25.')).toContain('[Philemon 25]');
+    });
+    test('2 John 1. — period after verse', () => {
+      expect(enrichMarkdown('2 John 1.')).toContain('[2 John 1]');
+    });
+    test('3 John 14. — period after verse', () => {
+      expect(enrichMarkdown('3 John 14.')).toContain('[3 John 14]');
+    });
+
+    // Colon
+    test('Jude 9: — colon after verse (introducing quote)', () => {
+      expect(enrichMarkdown('Jude 9:')).toContain('[Jude 9]');
+    });
+
+    // Ellipsis
+    test('Jude 9... — ellipsis after verse', () => {
+      expect(enrichMarkdown('Jude 9...')).toContain('[Jude 9]');
+    });
+
+    // Range + period (the backtrack-and-shatter bug)
+    test('Jude 9-14. — full range preserved when period follows', () => {
+      const output = enrichMarkdown('Jude 9-14.');
+      expect(output).toContain('[Jude 9-14]');
+      expect(output).toContain('[[Jude#v9]]');
+      expect(output).toContain('[[Jude#v14]]');
+      expect(output).not.toContain(')-14.');
+    });
+    test('See Jude 9-14. — full range in sentence ending with period', () => {
+      const output = enrichMarkdown('See Jude 9-14.');
+      expect(output).toContain('[Jude 9-14]');
+      expect(output).not.toContain(')-14.');
+    });
+
+    // In prose / markdown structure
+    test('See Jude 9. — verse ends sentence', () => {
+      expect(enrichMarkdown('See Jude 9.')).toContain('[Jude 9]');
+    });
+    test('- Jude 9. — verse in bullet list item', () => {
+      expect(enrichMarkdown('- Jude 9.')).toContain('[Jude 9]');
+    });
+    test('> Jude 9. — verse in blockquote', () => {
+      expect(enrichMarkdown('> Jude 9.')).toContain('[Jude 9]');
+    });
+    test('"See Jude 9." — verse in double-quotes ending with period', () => {
+      expect(enrichMarkdown('"See Jude 9."')).toContain('[Jude 9]');
+    });
+    test("'Jude 9.' — verse in single-quotes ending with period", () => {
+      expect(enrichMarkdown("'Jude 9.'")).toContain('[Jude 9]');
+    });
+    test('(cf. Jude 9.) — verse in parens ending with period', () => {
+      expect(enrichMarkdown('(cf. Jude 9.)')).toContain('[Jude 9]');
+    });
+
+    // Idempotency
+    test('idempotency: Jude 9.', () => {
+      const once = enrichMarkdown('Jude 9.');
+      expect(enrichMarkdown(once)).toBe(once);
+    });
+    test('idempotency: Jude 9-14.', () => {
+      const once = enrichMarkdown('Jude 9-14.');
+      expect(enrichMarkdown(once)).toBe(once);
+    });
+  });
+
+  describe('period, colon and ellipsis termination — bare chapter (pass 2c)', () => {
+    // All 7 deuterocanonical books: period, colon, ellipsis
+    test('Tobit 1. — period', () => { expect(enrichMarkdown('Tobit 1.')).toContain('[Tobit 1]'); });
+    test('Tobit 1: — colon', () => { expect(enrichMarkdown('Tobit 1:')).toContain('[Tobit 1]'); });
+    test('Tobit 1... — ellipsis', () => { expect(enrichMarkdown('Tobit 1...')).toContain('[Tobit 1]'); });
+
+    test('Judith 1. — period', () => { expect(enrichMarkdown('Judith 1.')).toContain('[Judith 1]'); });
+    test('Judith 1: — colon', () => { expect(enrichMarkdown('Judith 1:')).toContain('[Judith 1]'); });
+    test('Judith 1... — ellipsis', () => { expect(enrichMarkdown('Judith 1...')).toContain('[Judith 1]'); });
+
+    test('Wisdom 1. — period', () => { expect(enrichMarkdown('Wisdom 1.')).toContain('[Wisdom 1]'); });
+    test('Wisdom 1: — colon', () => { expect(enrichMarkdown('Wisdom 1:')).toContain('[Wisdom 1]'); });
+    test('Wisdom 1... — ellipsis', () => { expect(enrichMarkdown('Wisdom 1...')).toContain('[Wisdom 1]'); });
+
+    test('Sirach 1. — period', () => { expect(enrichMarkdown('Sirach 1.')).toContain('[Sirach 1]'); });
+    test('Sirach 1: — colon', () => { expect(enrichMarkdown('Sirach 1:')).toContain('[Sirach 1]'); });
+    test('Sirach 1... — ellipsis', () => { expect(enrichMarkdown('Sirach 1...')).toContain('[Sirach 1]'); });
+
+    test('Baruch 1. — period', () => { expect(enrichMarkdown('Baruch 1.')).toContain('[Baruch 1]'); });
+    test('Baruch 1: — colon', () => { expect(enrichMarkdown('Baruch 1:')).toContain('[Baruch 1]'); });
+    test('Baruch 1... — ellipsis', () => { expect(enrichMarkdown('Baruch 1...')).toContain('[Baruch 1]'); });
+
+    test('1 Maccabees 1. — period', () => { expect(enrichMarkdown('1 Maccabees 1.')).toContain('[1 Maccabees 1]'); });
+    test('1 Maccabees 1: — colon', () => { expect(enrichMarkdown('1 Maccabees 1:')).toContain('[1 Maccabees 1]'); });
+    test('1 Maccabees 1... — ellipsis', () => { expect(enrichMarkdown('1 Maccabees 1...')).toContain('[1 Maccabees 1]'); });
+
+    test('2 Maccabees 1. — period', () => { expect(enrichMarkdown('2 Maccabees 1.')).toContain('[2 Maccabees 1]'); });
+    test('2 Maccabees 1: — colon', () => { expect(enrichMarkdown('2 Maccabees 1:')).toContain('[2 Maccabees 1]'); });
+    test('2 Maccabees 1... — ellipsis', () => { expect(enrichMarkdown('2 Maccabees 1...')).toContain('[2 Maccabees 1]'); });
+
+    // Alternative names for Sirach
+    test('Ecclesiasticus 1. — period', () => { expect(enrichMarkdown('Ecclesiasticus 1.')).toContain('[Ecclesiasticus 1]'); });
+    test('Wisdom of Ben Sira 1. — period', () => { expect(enrichMarkdown('Wisdom of Ben Sira 1.')).toContain('[Wisdom of Ben Sira 1]'); });
+
+    // Canonical examples from the issue
+    test('Isaiah 53. — period', () => { expect(enrichMarkdown('Isaiah 53.')).toContain('[Isaiah 53]'); });
+    test('Isaiah 53: — colon', () => { expect(enrichMarkdown('Isaiah 53:')).toContain('[Isaiah 53]'); });
+    test('Isaiah 53... — ellipsis', () => { expect(enrichMarkdown('Isaiah 53...')).toContain('[Isaiah 53]'); });
+    test('Psalm 91. — period', () => { expect(enrichMarkdown('Psalm 91.')).toContain('[Psalm 91]'); });
+
+    // Multi-ref prose
+    test('See Isaiah 53. Also Psalm 91. — both enriched', () => {
+      const output = enrichMarkdown('See Isaiah 53. Also Psalm 91.');
+      expect(output).toContain('[Isaiah 53]');
+      expect(output).toContain('[Psalm 91]');
+    });
+    test('- Isaiah 53. — bare chapter in bullet + period', () => {
+      expect(enrichMarkdown('- Isaiah 53.')).toContain('[Isaiah 53]');
+    });
+
+    // Regression: chapter:verse still works (BIBLE_REF_RE handles these, must not break)
+    test('Tobit 1:1 — chapter:verse unaffected', () => {
+      expect(enrichMarkdown('Tobit 1:1')).toContain('[Tobit 1:1]');
+    });
+    test('Isaiah 53.1 — dot-separator handled by BIBLE_REF_RE, not bare-chapter pass', () => {
+      const output = enrichMarkdown('Isaiah 53.1');
+      expect(output).toContain('[Isaiah 53.1]');
+      expect(output).not.toContain('[Isaiah 53]<br>');
+    });
+
+    // Idempotency
+    test('idempotency: Isaiah 53.', () => {
+      const once = enrichMarkdown('Isaiah 53.');
+      expect(enrichMarkdown(once)).toBe(once);
+    });
+    test('idempotency: Wisdom 1.', () => {
+      const once = enrichMarkdown('Wisdom 1.');
+      expect(enrichMarkdown(once)).toBe(once);
+    });
+  });
+
   describe('Edge cases', () => {
     test('should handle empty string', () => {
       expect(enrichMarkdown('')).toBe('');
