@@ -434,6 +434,148 @@ See also Genesis 50:20 and CCC 312-314 for more context.
     });
   });
 
+  describe('frontmatter protection', () => {
+    // ── Basic frontmatter preservation ──────────────────────────────────────
+
+    test('1. frontmatter block with no Bible refs is passed through unchanged', () => {
+      const input = '---\ntitle: My Document\nauthor: Test\n---\n\nSome body text.';
+      const output = enrichMarkdown(input);
+      expect(output.startsWith('---\ntitle: My Document\nauthor: Test\n---\n')).toBe(true);
+    });
+
+    test('2. frontmatter block with a Bible ref tag (- John 3:16) is NOT enriched', () => {
+      const input = '---\ntags:\n  - John 3:16\n---\n\nBody text.';
+      const output = enrichMarkdown(input);
+      // The frontmatter tag must remain as plain YAML — no link syntax injected
+      expect(output).toContain('  - John 3:16\n');
+      expect(output).not.toContain('  - [John 3:16]');
+    });
+
+    test('3. frontmatter block with a single-chapter bare verse tag (- Jude 9) is NOT enriched', () => {
+      const input = '---\ntags:\n  - Jude 9\n---\n\nBody text.';
+      const output = enrichMarkdown(input);
+      expect(output).toContain('  - Jude 9\n');
+      expect(output).not.toContain('  - [Jude 9]');
+    });
+
+    test('4. frontmatter block with a CCC reference (ccc: CCC 528) is NOT enriched', () => {
+      const input = '---\nccc: CCC 528\n---\n\nBody text.';
+      const output = enrichMarkdown(input);
+      expect(output).toContain('ccc: CCC 528\n');
+      expect(output).not.toContain('[CCC 528]');
+    });
+
+    test('5. frontmatter block with a bare chapter tag (- Isaiah 53) is NOT enriched', () => {
+      const input = '---\ntags:\n  - Isaiah 53\n---\n\nBody text.';
+      const output = enrichMarkdown(input);
+      expect(output).toContain('  - Isaiah 53\n');
+      expect(output).not.toContain('  - [Isaiah 53]');
+    });
+
+    // ── Body still enriched when frontmatter present ─────────────────────────
+
+    test('6. Bible reference in the body IS enriched when doc has frontmatter', () => {
+      const input = '---\ntitle: Test\n---\n\nRead John 3:16 today.';
+      const output = enrichMarkdown(input);
+      expect(output).toContain('[John 3:16]');
+      expect(output).toContain('[[John-03#v16]]');
+    });
+
+    test('7. single-chapter bare verse in the body IS enriched when doc has frontmatter', () => {
+      const input = '---\ntitle: Test\n---\n\nSee Jude 9 for context.';
+      const output = enrichMarkdown(input);
+      expect(output).toContain('[Jude 9]');
+    });
+
+    test('8. CCC reference in the body IS enriched when doc has frontmatter', () => {
+      const input = '---\ntitle: Test\n---\n\nRead CCC 528 about the Epiphany.';
+      const output = enrichMarkdown(input);
+      expect(output).toContain('[CCC 528]');
+      expect(output).toContain('catholiccrossreference');
+    });
+
+    test('9. bare chapter reference in the body IS enriched when doc has frontmatter', () => {
+      const input = '---\ntitle: Test\n---\n\nSee Isaiah 53 for the suffering servant.';
+      const output = enrichMarkdown(input);
+      expect(output).toContain('[Isaiah 53]');
+      expect(output).toContain('[[Isa-53]]');
+    });
+
+    // ── No regression when no frontmatter ───────────────────────────────────
+
+    test('10. document with no frontmatter: plain text works as before', () => {
+      const input = 'Read John 3:16 today.';
+      const output = enrichMarkdown(input);
+      expect(output).toContain('[John 3:16]');
+    });
+
+    test('11. document starting with # heading (not ---) is processed normally', () => {
+      const input = '# My Heading\n\nRead John 3:16.';
+      const output = enrichMarkdown(input);
+      expect(output).toContain('# My Heading');
+      expect(output).toContain('[John 3:16]');
+    });
+
+    test('12. document starting with a Bible reference is enriched normally', () => {
+      const input = 'John 3:16 is the key verse.';
+      const output = enrichMarkdown(input);
+      expect(output).toContain('[John 3:16]');
+    });
+
+    // ── Edge cases ──────────────────────────────────────────────────────────
+
+    test('13. --- appearing mid-document (not at position 0) is NOT treated as frontmatter', () => {
+      const input = 'Some text.\n\n---\n\nJohn 3:16 is here.';
+      const output = enrichMarkdown(input);
+      // The horizontal rule --- stays, and John 3:16 in the body is enriched
+      expect(output).toContain('---');
+      expect(output).toContain('[John 3:16]');
+    });
+
+    test('14. frontmatter closed with ... instead of --- is detected correctly', () => {
+      const input = '---\ntags:\n  - John 3:16\n...\n\nRead John 3:16 today.';
+      const output = enrichMarkdown(input);
+      // frontmatter ref NOT enriched
+      expect(output).toContain('  - John 3:16\n');
+      expect(output).not.toContain('  - [John 3:16]');
+      // body ref IS enriched
+      const bodyPart = output.split('...\n')[1];
+      expect(bodyPart).toContain('[John 3:16]');
+    });
+
+    test('15. empty frontmatter block (---\\n---\\n) — body still enriched', () => {
+      const input = '---\n---\n\nRead John 3:16 today.';
+      const output = enrichMarkdown(input);
+      expect(output.startsWith('---\n---\n')).toBe(true);
+      expect(output).toContain('[John 3:16]');
+    });
+
+    test('16. frontmatter with multi-line string value containing a Bible ref is NOT enriched', () => {
+      const input = '---\ndescription: |\n  See John 3:16 for more\n---\n\nBody text.';
+      const output = enrichMarkdown(input);
+      expect(output).toContain('  See John 3:16 for more\n');
+      expect(output).not.toContain('  See [John 3:16]');
+    });
+
+    test('17. mixed doc: frontmatter tags + body with same ref — only body is enriched', () => {
+      const input = '---\ntags:\n  - John 3:16\n---\n\nRead John 3:16 today.';
+      const output = enrichMarkdown(input);
+      // frontmatter tag unchanged
+      expect(output).toContain('  - John 3:16\n');
+      expect(output).not.toContain('  - [John 3:16]');
+      // body enriched
+      const bodyPart = output.split('---\n').slice(2).join('---\n');
+      expect(bodyPart).toContain('[John 3:16]');
+    });
+
+    test('18. idempotency: enrichMarkdown(enrichMarkdown(input)) === enrichMarkdown(input) with frontmatter', () => {
+      const input = '---\ntags:\n  - John 3:16\n  - Jude 9\n---\n\nRead John 3:16 and Jude 9.';
+      const once = enrichMarkdown(input);
+      const twice = enrichMarkdown(once);
+      expect(twice).toBe(once);
+    });
+  });
+
   describe('Edge cases', () => {
     test('should handle empty string', () => {
       expect(enrichMarkdown('')).toBe('');
