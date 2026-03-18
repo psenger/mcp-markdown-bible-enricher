@@ -15,6 +15,8 @@ config:
 enrichment:
   double-link-prevention:
     description: Regex lookbehind/lookahead guards for idempotency and link preservation
+  frontmatter-awareness:
+    description: enrichMarkdown() strips YAML frontmatter before enrichment and reattaches it unchanged
   implicit-chapter-inheritance:
     description: parseChapterVerse() chapter propagation across comma-separated verse groups
   three-pass-ordering:

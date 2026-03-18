@@ -307,11 +307,39 @@ function enrichCccRef(numbersRaw: string): string {
 }
 
 // ──────────────────────────────────────────────────────────────
+// Frontmatter split helper
+// ──────────────────────────────────────────────────────────────
+
+/**
+ * Split a document into YAML frontmatter and body.
+ * Frontmatter is the --- delimited block at the very start of the document.
+ * The closing delimiter may be --- or ... (both valid YAML end markers).
+ * Returns { frontmatter, body }. frontmatter includes both delimiters and trailing newline.
+ * If no frontmatter is found, frontmatter is "" and body is the full input.
+ */
+function splitFrontmatter(text: string): { frontmatter: string; body: string } {
+  if (!text.startsWith("---")) {
+    return { frontmatter: "", body: text };
+  }
+  const rest = text.slice(3);
+  const closeMatch = rest.match(/\n(---|\.\.\.)(\r?\n|$)/);
+  if (!closeMatch || closeMatch.index === undefined) {
+    return { frontmatter: "", body: text };
+  }
+  const endIndex = 3 + closeMatch.index + closeMatch[0].length;
+  return {
+    frontmatter: text.slice(0, endIndex),
+    body: text.slice(endIndex),
+  };
+}
+
+// ──────────────────────────────────────────────────────────────
 // Main enrichment function
 // ──────────────────────────────────────────────────────────────
 
 export function enrichMarkdown(markdown: string): string {
-  let result = markdown;
+  const { frontmatter, body } = splitFrontmatter(markdown);
+  let result = body;
 
   // 1. Enrich backtick-wrapped Bible references first (e.g. `1 Samuel 16:1, 16:4-13:`)
   result = result.replace(BACKTICK_BIBLE_RE, (_match, book: string, cv: string) => {
@@ -338,5 +366,5 @@ export function enrichMarkdown(markdown: string): string {
     return enrichCccRef(numbers.trim());
   });
 
-  return result;
+  return frontmatter + result;
 }
