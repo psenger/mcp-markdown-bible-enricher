@@ -248,6 +248,48 @@ function enrichSingleChapterBibleRef(bookName: string, verseRaw: string): string
 }
 
 // ──────────────────────────────────────────────────────────────
+// Bare chapter reference Regex (pass 2c)
+// ──────────────────────────────────────────────────────────────
+
+// Matches "Isaiah 53", "Psalm 91", "John 3", "1 Corinthians 13"
+// Does NOT match when followed by ":" or "." (those are chapter:verse refs, handled by pass 2)
+// Runs after passes 2 and 2b so already-enriched text is protected by the lookbehind.
+const BARE_CHAPTER_REF_RE = new RegExp(
+  "(?<![\\[\\(])" +                          // negative lookbehind: not already in a link
+  "\\b" +
+  `((?:[123]\\s)?(?:${bookPattern}))` +       // group 1: full book name (same pattern as BIBLE_REF_RE)
+  "\\s+" +
+  "(\\d+)" +                                  // group 2: bare chapter number
+  "(?![:\\.\\d])" +                          // not followed by colon/dot/digit (not ch:v form)
+  "(?![^\\[]*\\]\\()",                        // not inside []()
+  "gi"
+);
+
+/**
+ * Enrich a bare chapter reference like "Psalm 91" or "Isaiah 53".
+ * Obsidian link uses [[Abbrev-NN]] format (zero-padded chapter, no verse anchor).
+ */
+function enrichBareChapterRef(fullBook: string, chapterRaw: string): string {
+  const cleanRef = `${fullBook} ${chapterRaw}`.replace(/\s+/g, " ").trim();
+  const bookInfo = lookupBook(fullBook);
+
+  if (!bookInfo) return cleanRef;
+
+  const chapter = parseInt(chapterRaw.trim(), 10);
+  const bgUrl = bibleGatewayUrl(cleanRef);
+  const bgLink = `[${cleanRef}](${bgUrl})`;
+
+  if (!config.includeObsidianLinks) {
+    return bgLink;
+  }
+
+  const chapter2 = chapter.toString().padStart(2, "0");
+  const obsLink = `[[${bookInfo.abbrev}-${chapter2}]]`;
+
+  return `${bgLink} ( ${obsLink} )`;
+}
+
+// ──────────────────────────────────────────────────────────────
 // CCC (Catechism) Regex & Enrichment
 // ──────────────────────────────────────────────────────────────
 
@@ -283,6 +325,11 @@ export function enrichMarkdown(markdown: string): string {
   // 2b. Enrich bare verse references for single-chapter books (e.g. "Jude 9", "Obadiah 21")
   result = result.replace(SINGLE_CHAPTER_REF_RE, (_match, book: string, verse: string) => {
     return enrichSingleChapterBibleRef(book, verse.trim());
+  });
+
+  // 2c. Enrich bare chapter references (e.g. "Psalm 91", "Isaiah 53")
+  result = result.replace(BARE_CHAPTER_REF_RE, (_match, book: string, chapter: string) => {
+    return enrichBareChapterRef(book, chapter.trim());
   });
 
   // 3. Enrich CCC references
