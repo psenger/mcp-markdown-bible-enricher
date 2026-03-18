@@ -1,0 +1,50 @@
+# Agent OS Standards Index
+
+books:
+  book-map-conventions:
+    description: BOOK_MAP key casing rules, abbrev source, and alternative name pattern
+  single-chapter-books:
+    description: Why singleChapter:true books use [[Abbrev#vN]] not [[Abbrev-01#vN]]
+
+config:
+  obsidian-links-opt-out:
+    description: INCLUDE_OBSIDIAN_LINKS opt-out design; only 'false' disables it
+  startup-config-loading:
+    description: Config loaded once at module init; env changes require server restart
+
+enrichment:
+  double-link-prevention:
+    description: Regex lookbehind/lookahead guards for idempotency and link preservation
+  implicit-chapter-inheritance:
+    description: parseChapterVerse() chapter propagation across comma-separated verse groups
+  three-pass-ordering:
+    description: Strict pass order in enrichMarkdown() and why it must not change
+
+global:
+  coupling-cohesion:
+    description: Needs description - run /index-standards
+  delegation:
+    description: Needs description - run /index-standards
+  dry:
+    description: Needs description - run /index-standards
+  gang-of-four:
+    description: Needs description - run /index-standards
+  hexagonal-architecture:
+    description: Needs description - run /index-standards
+  object-interaction:
+    description: Needs description - run /index-standards
+  progressive-enhancement:
+    description: Needs description - run /index-standards
+  simplicity:
+    description: Needs description - run /index-standards
+  solid:
+    description: Needs description - run /index-standards
+  tdd-workflow:
+    description: Needs description - run /index-standards
+  value-objects:
+    description: Needs description - run /index-standards
+
+testing:
+  config-module-cache-limitation:
+    description: Why process.env changes in Jest beforeEach don't affect enrichment config
+
