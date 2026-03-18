@@ -189,6 +189,57 @@ See also Genesis 50:20 and CCC 312-314 for more context.
     });
   });
 
+  describe('bare chapter references', () => {
+    test('Isaiah 53 generates a Bible Gateway link and Obsidian chapter link', () => {
+      const output = enrichMarkdown('Isaiah 53');
+      expect(output).toContain('[Isaiah 53](https://www.biblegateway.com/passage/?search=Isaiah%2053&version=NRSVCE)');
+      expect(output).toContain('[[Isa-53]]');
+    });
+
+    test('Psalm 91 generates a Bible Gateway link and Obsidian chapter link', () => {
+      const output = enrichMarkdown('Psalm 91');
+      expect(output).toContain('[Psalm 91](https://www.biblegateway.com/passage/?search=Psalm%2091&version=NRSVCE)');
+      expect(output).toContain('[[Ps-91]]');
+    });
+
+    test('John 3 generates a link', () => {
+      const output = enrichMarkdown('John 3');
+      expect(output).toContain('[John 3]');
+      expect(output).toContain('[[John-03]]');
+    });
+
+    test('1 Corinthians 13 generates a link', () => {
+      const output = enrichMarkdown('1 Corinthians 13');
+      expect(output).toContain('[1 Corinthians 13]');
+      expect(output).toContain('[[1 Cor-13]]');
+    });
+
+    test('mixed content: James 5:7; Isaiah 5:1-7; Psalm 91; all enriched', () => {
+      const output = enrichMarkdown('James 5:7; Isaiah 5:1-7; Psalm 91;');
+      expect(output).toContain('[James 5:7]');
+      expect(output).toContain('[Isaiah 5:1-7]');
+      expect(output).toContain('[Psalm 91]');
+    });
+
+    test('bare chapter ref does not consume existing chapter:verse ref', () => {
+      const output = enrichMarkdown('John 3:16');
+      expect(output).toContain('[John 3:16]');
+      // must NOT also produce a bare-chapter link for "John 3"
+      expect(output).not.toContain('[John 3]');
+    });
+
+    test('idempotency — enrichMarkdown is stable for Isaiah 53', () => {
+      const once = enrichMarkdown('Isaiah 53');
+      const twice = enrichMarkdown(once);
+      expect(twice).toBe(once);
+    });
+
+    test('already-linked Isaiah 53 is not double-enriched', () => {
+      const input = '[Isaiah 53](https://www.biblegateway.com/passage/?search=Isaiah%2053&version=NRSVCE)';
+      expect(enrichMarkdown(input)).toBe(input);
+    });
+  });
+
   describe('single-chapter books — bare verse references', () => {
     test('Jude 9 generates Bible Gateway link for Jude 1:9', () => {
       const output = enrichMarkdown('Jude 9');
