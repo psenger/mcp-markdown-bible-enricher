@@ -1,6 +1,6 @@
 {
   "name": "mcp-markdown-bible-enricher",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "MCP server for Catholic Bible study. Enriches markdown with Bible Gateway links (NRSVCE), Obsidian wiki-links, and CCC Catechism references. Supports all 73 books of the Catholic Bible including 7 deuterocanonical books (Tobit, Judith, Wisdom, Sirach, Baruch, 1-2 Maccabees).",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
