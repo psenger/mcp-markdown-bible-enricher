@@ -18,10 +18,6 @@ function bibleGatewayUrl(reference: string): string {
 // Obsidian wiki-link builder
 // ──────────────────────────────────────────────────────────────
 
-function pad2(n: number): string {
-  return n.toString().padStart(2, "0");
-}
-
 /**
  * Build a single Obsidian wiki-link using the configured format
  */
