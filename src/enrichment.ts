@@ -201,7 +201,7 @@ function enrichBibleRef(fullBook: string, chapterVerseRaw: string): string {
 // ──────────────────────────────────────────────────────────────
 
 // Matches "Jude 9", "Jude 9-14", "Obadiah 21", "Philemon 25", "2 John 1", "3 John 14"
-// Does NOT match when followed by ":" (which would be a chapter:verse reference handled by pass 2)
+// Pass 2 (BIBLE_REF_RE) handles "Jude 1:9" form first, so no need to guard against : or . here.
 // SINGLE_CHAPTER_BOOKS keys are lowercase; the regex uses gi flag for case-insensitive matching.
 const singleChapterBookPattern = SINGLE_CHAPTER_BOOKS.join("|");
 const SINGLE_CHAPTER_REF_RE = new RegExp(
@@ -210,7 +210,7 @@ const SINGLE_CHAPTER_REF_RE = new RegExp(
   `(${singleChapterBookPattern})` +               // group 1: single-chapter book name
   "\\s+" +
   "(\\d+(?:\\s*[-–]\\s*\\d+)?)" +                // group 2: verse or verse range
-  "(?![:\\.\\d])" +                              // not followed by colon/dot/digit (not ch:v form)
+  "(?!\\d)" +                                    // not followed by digit (\d+ is greedy; guards partial matches)
   "(?![^\\[]*\\]\\()",                            // not inside []()
   "gi"
 );
@@ -252,7 +252,8 @@ function enrichSingleChapterBibleRef(bookName: string, verseRaw: string): string
 // ──────────────────────────────────────────────────────────────
 
 // Matches "Isaiah 53", "Psalm 91", "John 3", "1 Corinthians 13"
-// Does NOT match when followed by ":" or "." (those are chapter:verse refs, handled by pass 2)
+// Pass 2 (BIBLE_REF_RE) handles "Isaiah 53:1" and "Isaiah 53.1" first, so no need to guard
+// against : or . here — they are legitimate sentence terminators for bare chapter refs.
 // Runs after passes 2 and 2b so already-enriched text is protected by the lookbehind.
 const BARE_CHAPTER_REF_RE = new RegExp(
   "(?<![\\[\\(])" +                          // negative lookbehind: not already in a link
@@ -260,7 +261,7 @@ const BARE_CHAPTER_REF_RE = new RegExp(
   `((?:[123]\\s)?(?:${bookPattern}))` +       // group 1: full book name (same pattern as BIBLE_REF_RE)
   "\\s+" +
   "(\\d+)" +                                  // group 2: bare chapter number
-  "(?![:\\.\\d])" +                          // not followed by colon/dot/digit (not ch:v form)
+  "(?!\\d)" +                                // not followed by digit (\d+ is greedy; guards partial matches)
   "(?![^\\[]*\\]\\()",                        // not inside []()
   "gi"
 );
