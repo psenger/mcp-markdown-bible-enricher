@@ -95,3 +95,11 @@ export const BOOK_MAP: Record<string, BookInfo> = {
 export function lookupBook(name: string): BookInfo | undefined {
   return BOOK_MAP[name.trim().toLowerCase()];
 }
+
+/**
+ * All single-chapter book names (lowercase keys from BOOK_MAP).
+ * Used to build the bare-verse regex for single-chapter book citations.
+ */
+export const SINGLE_CHAPTER_BOOKS: string[] = Object.entries(BOOK_MAP)
+  .filter(([, v]) => v.singleChapter)
+  .map(([k]) => k);

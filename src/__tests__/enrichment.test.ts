@@ -205,7 +205,7 @@ See also Genesis 50:20 and CCC 312-314 for more context.
     test('Obadiah 21 generates a link', () => {
       const output = enrichMarkdown('Obadiah 21');
       expect(output).toContain('[Obadiah 21]');
-      expect(output).toContain('Obad%201%3A21');
+      expect(output).toContain('Obadiah%201%3A21');
     });
 
     test('Philemon 25 generates a link', () => {
