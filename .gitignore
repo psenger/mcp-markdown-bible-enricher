@@ -4,7 +4,8 @@
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
-./.claude
+.claude/settings.local.json
+!.claude/skills/
 ./.idea
 .cache
 .cache/
@@ -57,7 +58,6 @@
 /yarn-error.log*
 bower_components
 build/Release
-CLAUDE.md
 coverage
 dist
 jspm_packages/

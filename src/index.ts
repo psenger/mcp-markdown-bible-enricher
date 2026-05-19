@@ -1,7 +1,11 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { createRequire } from "node:module";
 import { enrichMarkdown } from "./enrichment.js";
+
+const _require = createRequire(import.meta.url);
+const { version: SERVER_VERSION } = _require("../package.json") as { version: string };
 
 // ──────────────────────────────────────────────────────────────
 // Server
@@ -9,7 +13,7 @@ import { enrichMarkdown } from "./enrichment.js";
 
 const server = new McpServer({
   name: "mcp-markdown-bible-enricher",
-  version: "0.0.1",
+  version: SERVER_VERSION,
 });
 
 // ──────────────────────────────────────────────────────────────
@@ -131,7 +135,7 @@ server.prompt(
         role: "user",
         content: {
           type: "text",
-          text: `Bible Enrichment MCP Server v0.0.1
+          text: `Bible Enrichment MCP Server v${SERVER_VERSION}
 
 Available Bible Enrichment Tools:
 
