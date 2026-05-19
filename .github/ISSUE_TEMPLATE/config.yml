@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Ask a question
+    url: https://github.com/psenger/mcp-markdown-bible-enricher/discussions
+    about: For general questions, use GitHub Discussions rather than opening an issue.
