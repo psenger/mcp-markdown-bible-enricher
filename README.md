@@ -121,10 +121,10 @@ claude mcp add --transport stdio mcp-markdown-bible-enricher -- node /absolute/p
 With environment variables:
 
 ```bash
-claude mcp add --transport stdio \
-  --env BIBLE_VERSION=NRSVCE \
-  --env OBSIDIAN_FORMAT="[[{abbrev}-{chapter2}#v{verse}]]" \
-  mcp-markdown-bible-enricher -- node /absolute/path/to/mcp-markdown-bible-enricher/dist/index.js
+claude mcp add mcp-markdown-bible-enricher \
+  -e BIBLE_VERSION=NRSVCE \
+  -e 'OBSIDIAN_FORMAT=[[{abbrev}-{chapter2}#v{verse}]]' \
+  -- node /absolute/path/to/mcp-markdown-bible-enricher/dist/index.js
 ```
 
 Use `--scope user` to install globally across all projects:
