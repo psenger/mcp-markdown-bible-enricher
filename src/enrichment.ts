@@ -21,7 +21,12 @@ function bibleGatewayUrl(reference: string): string {
 /**
  * Build a single Obsidian wiki-link using the configured format
  */
-function obsidianLink(abbrev: string, chapter: number, verse: number, singleChapter: boolean): string {
+function obsidianLink(
+  abbrev: string,
+  chapter: number,
+  verse: number,
+  singleChapter: boolean,
+): string {
   // Special handling for single-chapter books
   if (singleChapter && chapter === 1) {
     // For single-chapter books at chapter 1, use the formatted template
@@ -43,7 +48,7 @@ function obsidianSpan(
   chapter: number,
   startVerse: number,
   endVerse: number | undefined,
-  singleChapter: boolean
+  singleChapter: boolean,
 ): string {
   const start = obsidianLink(abbrev, chapter, startVerse, singleChapter);
   if (endVerse !== undefined && endVerse !== startVerse) {
@@ -70,19 +75,70 @@ function obsidianSpan(
 // We intentionally keep the "tail" portion loose and post-process it.
 
 const BOOK_NAMES = [
-  "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
-  "Joshua", "Judges", "Ruth",
-  "Samuel", "Kings", "Chronicles",
-  "Ezra", "Nehemiah", "Tobit", "Judith", "Esther", "Maccabees", "Job",
-  "Psalms?", "Proverbs", "Ecclesiastes", "Song of Solomon", "Song of Songs",
-  "Wisdom(?:\\s+of\\s+Ben\\s+Sira)?", "Sirach", "Ecclesiasticus",
-  "Isaiah", "Jeremiah", "Lamentations", "Baruch", "Ezekiel", "Daniel",
-  "Hosea", "Joel", "Amos", "Obadiah", "Jonah", "Micah",
-  "Nahum", "Habakkuk", "Zephaniah", "Haggai", "Zechariah", "Malachi",
-  "Matthew", "Mark", "Luke", "John", "Acts",
-  "Romans", "Corinthians", "Galatians", "Ephesians", "Philippians",
-  "Colossians", "Thessalonians", "Timothy", "Titus", "Philemon",
-  "Hebrews", "James", "Peter", "Jude", "Revelation",
+  "Genesis",
+  "Exodus",
+  "Leviticus",
+  "Numbers",
+  "Deuteronomy",
+  "Joshua",
+  "Judges",
+  "Ruth",
+  "Samuel",
+  "Kings",
+  "Chronicles",
+  "Ezra",
+  "Nehemiah",
+  "Tobit",
+  "Judith",
+  "Esther",
+  "Maccabees",
+  "Job",
+  "Psalms?",
+  "Proverbs",
+  "Ecclesiastes",
+  "Song of Solomon",
+  "Song of Songs",
+  "Wisdom(?:\\s+of\\s+Ben\\s+Sira)?",
+  "Sirach",
+  "Ecclesiasticus",
+  "Isaiah",
+  "Jeremiah",
+  "Lamentations",
+  "Baruch",
+  "Ezekiel",
+  "Daniel",
+  "Hosea",
+  "Joel",
+  "Amos",
+  "Obadiah",
+  "Jonah",
+  "Micah",
+  "Nahum",
+  "Habakkuk",
+  "Zephaniah",
+  "Haggai",
+  "Zechariah",
+  "Malachi",
+  "Matthew",
+  "Mark",
+  "Luke",
+  "John",
+  "Acts",
+  "Romans",
+  "Corinthians",
+  "Galatians",
+  "Ephesians",
+  "Philippians",
+  "Colossians",
+  "Thessalonians",
+  "Timothy",
+  "Titus",
+  "Philemon",
+  "Hebrews",
+  "James",
+  "Peter",
+  "Jude",
+  "Revelation",
 ];
 
 // Build a mega-regex that will match Bible references in running text.
@@ -93,13 +149,13 @@ const bookPattern = BOOK_NAMES.join("|");
 // The verse-tail captures everything up to the next sentence-ending punctuation
 // or markdown structural character.
 const BIBLE_REF_RE = new RegExp(
-  "(?<![\\[\\(])" +                          // negative lookbehind: not already in a link
-  "\\b" +
-  `((?:[123]\\s)?(?:${bookPattern}))` +       // group 1: full book name with optional prefix
-  "\\s+" +
-  "([\\d]+\\s*[:\\.]\\s*[\\d]+(?:\\s*[-–]\\s*[\\d]+)?(?:\\s*,\\s*(?:[\\d]+\\s*[:\\.]\\s*)?[\\d]+(?:\\s*[-–]\\s*[\\d]+)?)*)" + // group 2: chapter:verse spec
-  "(?![^\\[]*\\]\\()",                        // negative lookahead: not inside []()
-  "gi"
+  "(?<![\\[])" + // negative lookbehind: not already inside [text](url)
+    "\\b" +
+    `((?:[123]\\s)?(?:${bookPattern}))` + // group 1: full book name with optional prefix
+    "\\s+" +
+    "([\\d]+\\s*[:\\.]\\s*[\\d]+(?:\\s*[-–]\\s*[\\d]+)?(?:\\s*,\\s*(?:[\\d]+\\s*[:\\.]\\s*)?[\\d]+(?:\\s*[-–]\\s*[\\d]+)?)*)" + // group 2: chapter:verse spec
+    "(?![^\\[]*\\]\\()", // negative lookahead: not inside []()
+  "gi",
 );
 
 // ──────────────────────────────────────────────────────────────
@@ -109,12 +165,12 @@ const BIBLE_REF_RE = new RegExp(
 // Matches Bible references inside backticks like `1 Samuel 16:1, 16:4-13:`
 const BACKTICK_BIBLE_RE = new RegExp(
   "`" +
-  `((?:[123]\\s)?(?:${bookPattern}))` +
-  "\\s+" +
-  "([\\d]+\\s*[:\\.]\\s*[\\d]+(?:\\s*[-–]\\s*[\\d]+)?(?:\\s*,\\s*(?:[\\d]+\\s*[:\\.]\\s*)?[\\d]+(?:\\s*[-–]\\s*[\\d]+)?)*)" +
-  "\\s*:?\\s*" +
-  "`",
-  "gi"
+    `((?:[123]\\s)?(?:${bookPattern}))` +
+    "\\s+" +
+    "([\\d]+\\s*[:\\.]\\s*[\\d]+(?:\\s*[-–]\\s*[\\d]+)?(?:\\s*,\\s*(?:[\\d]+\\s*[:\\.]\\s*)?[\\d]+(?:\\s*[-–]\\s*[\\d]+)?)*)" +
+    "\\s*:?\\s*" +
+    "`",
+  "gi",
 );
 
 // ──────────────────────────────────────────────────────────────
@@ -190,7 +246,13 @@ function enrichBibleRef(fullBook: string, chapterVerseRaw: string): string {
   }
 
   const obsLinks = refs.map((r) =>
-    obsidianSpan(bookInfo.abbrev, r.chapter, r.startVerse, r.endVerse, bookInfo.singleChapter)
+    obsidianSpan(
+      bookInfo.abbrev,
+      r.chapter,
+      r.startVerse,
+      r.endVerse,
+      bookInfo.singleChapter,
+    ),
   );
 
   return `${bgLink} ( ${obsLinks.join(" , ")} )`;
@@ -205,21 +267,24 @@ function enrichBibleRef(fullBook: string, chapterVerseRaw: string): string {
 // SINGLE_CHAPTER_BOOKS keys are lowercase; the regex uses gi flag for case-insensitive matching.
 const singleChapterBookPattern = SINGLE_CHAPTER_BOOKS.join("|");
 const SINGLE_CHAPTER_REF_RE = new RegExp(
-  "(?<![\\[\\(])" +                              // negative lookbehind: not already in a link
-  "\\b" +
-  `(${singleChapterBookPattern})` +               // group 1: single-chapter book name
-  "\\s+" +
-  "(\\d+(?:\\s*[-–]\\s*\\d+)?)" +                // group 2: verse or verse range
-  "(?!\\d)" +                                    // not followed by digit (\d+ is greedy; guards partial matches)
-  "(?![^\\[]*\\]\\()",                            // not inside []()
-  "gi"
+  "(?<![\\[])" + // negative lookbehind: not already inside [text](url)
+    "\\b" +
+    `(${singleChapterBookPattern})` + // group 1: single-chapter book name
+    "\\s+" +
+    "(\\d+(?:\\s*[-–]\\s*\\d+)?)" + // group 2: verse or verse range
+    "(?!\\d)" + // not followed by digit (\d+ is greedy; guards partial matches)
+    "(?![^\\[]*\\]\\()", // not inside []()
+  "gi",
 );
 
 /**
  * Enrich a single-chapter book bare-verse reference like "Jude 9" or "Jude 9-14".
  * Chapter is always implied as 1. Obsidian links use [[Abbrev#vN]] format (no chapter digits).
  */
-function enrichSingleChapterBibleRef(bookName: string, verseRaw: string): string {
+function enrichSingleChapterBibleRef(
+  bookName: string,
+  verseRaw: string,
+): string {
   const bookInfo = lookupBook(bookName);
   if (!bookInfo) return `${bookName} ${verseRaw}`;
 
@@ -256,14 +321,14 @@ function enrichSingleChapterBibleRef(bookName: string, verseRaw: string): string
 // against : or . here — they are legitimate sentence terminators for bare chapter refs.
 // Runs after passes 2 and 2b so already-enriched text is protected by the lookbehind.
 const BARE_CHAPTER_REF_RE = new RegExp(
-  "(?<![\\[\\(])" +                          // negative lookbehind: not already in a link
-  "\\b" +
-  `((?:[123]\\s)?(?:${bookPattern}))` +       // group 1: full book name (same pattern as BIBLE_REF_RE)
-  "\\s+" +
-  "(\\d+)" +                                  // group 2: bare chapter number
-  "(?!\\d)" +                                // not followed by digit (\d+ is greedy; guards partial matches)
-  "(?![^\\[]*\\]\\()",                        // not inside []()
-  "gi"
+  "(?<![\\[])" + // negative lookbehind: not already inside [text](url)
+    "\\b" +
+    `((?:[123]\\s)?(?:${bookPattern}))` + // group 1: full book name (same pattern as BIBLE_REF_RE)
+    "\\s+" +
+    "(\\d+)" + // group 2: bare chapter number
+    "(?!\\d)" + // not followed by digit (\d+ is greedy; guards partial matches)
+    "(?![^\\[]*\\]\\()", // not inside []()
+  "gi",
 );
 
 /**
@@ -294,10 +359,12 @@ function enrichBareChapterRef(fullBook: string, chapterRaw: string): string {
 // CCC (Catechism) Regex & Enrichment
 // ──────────────────────────────────────────────────────────────
 
-const CCC_PREFIX = "https://www.catholiccrossreference.online/catechism/#!/search/";
+const CCC_PREFIX =
+  "https://www.catholiccrossreference.online/catechism/#!/search/";
 
 // Matches "CCC 528", "CCC 528-530", "CCC 528,530", "CCC 528-530, 610-612"
-const CCC_RE = /(?<!\[)\bCCC\s+([\d]+(?:\s*[-–]\s*\d+)?(?:\s*,\s*\d+(?:\s*[-–]\s*\d+)?)*)/gi;
+const CCC_RE =
+  /(?<!\[)\bCCC\s+([\d]+(?:\s*[-–]\s*\d+)?(?:\s*,\s*\d+(?:\s*[-–]\s*\d+)?)*)/gi;
 
 function enrichCccRef(numbersRaw: string): string {
   const display = `CCC ${numbersRaw}`;
@@ -342,9 +409,12 @@ export function enrichMarkdown(markdown: string): string {
   let result = body;
 
   // 1. Enrich backtick-wrapped Bible references first (e.g. `1 Samuel 16:1, 16:4-13:`)
-  result = result.replace(BACKTICK_BIBLE_RE, (_match, book: string, cv: string) => {
-    return enrichBibleRef(book, cv.trim());
-  });
+  result = result.replace(
+    BACKTICK_BIBLE_RE,
+    (_match, book: string, cv: string) => {
+      return enrichBibleRef(book, cv.trim());
+    },
+  );
 
   // 2. Enrich plain-text Bible references (not already inside links)
   result = result.replace(BIBLE_REF_RE, (_match, book: string, cv: string) => {
@@ -352,14 +422,20 @@ export function enrichMarkdown(markdown: string): string {
   });
 
   // 2b. Enrich bare verse references for single-chapter books (e.g. "Jude 9", "Obadiah 21")
-  result = result.replace(SINGLE_CHAPTER_REF_RE, (_match, book: string, verse: string) => {
-    return enrichSingleChapterBibleRef(book, verse.trim());
-  });
+  result = result.replace(
+    SINGLE_CHAPTER_REF_RE,
+    (_match, book: string, verse: string) => {
+      return enrichSingleChapterBibleRef(book, verse.trim());
+    },
+  );
 
   // 2c. Enrich bare chapter references (e.g. "Psalm 91", "Isaiah 53")
-  result = result.replace(BARE_CHAPTER_REF_RE, (_match, book: string, chapter: string) => {
-    return enrichBareChapterRef(book, chapter.trim());
-  });
+  result = result.replace(
+    BARE_CHAPTER_REF_RE,
+    (_match, book: string, chapter: string) => {
+      return enrichBareChapterRef(book, chapter.trim());
+    },
+  );
 
   // 3. Enrich CCC references
   result = result.replace(CCC_RE, (_match, numbers: string) => {
