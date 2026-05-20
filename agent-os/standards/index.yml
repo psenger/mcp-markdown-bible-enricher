@@ -24,27 +24,27 @@ enrichment:
 
 global:
   coupling-cohesion:
-    description: Needs description - run /index-standards
+    description: Low coupling and high cohesion; dependency types, cohesion levels, stable and acyclic dependencies
   delegation:
-    description: Needs description - run /index-standards
+    description: Forwarding calls to injected collaborators; delegation vs inheritance; enables Decorator, Proxy, Facade
   dry:
-    description: Needs description - run /index-standards
+    description: Single authoritative representation of knowledge; AHA principle; DRY trade-offs in test code
   gang-of-four:
-    description: Needs description - run /index-standards
+    description: 23 GoF patterns — when to use Creational, Structural, and Behavioral patterns; patterns to avoid
   hexagonal-architecture:
-    description: Needs description - run /index-standards
+    description: Ports-and-adapters architecture; core/driving/driven zones; mock at boundaries; orthogonal design
   object-interaction:
-    description: Needs description - run /index-standards
+    description: Law of Demeter and Tell-Don't-Ask; avoid chained calls; delegate decisions to the object that owns the data
   progressive-enhancement:
-    description: Needs description - run /index-standards
+    description: Core path always works; enhancements activate conditionally; graceful degradation for non-critical failures
   simplicity:
-    description: Needs description - run /index-standards
+    description: YAGNI, KISS, and Kent Beck's four rules of simple design
   solid:
-    description: Needs description - run /index-standards
+    description: SRP, OCP, LSP, ISP, DIP with examples and relation to hexagonal architecture
   tdd-workflow:
-    description: Needs description - run /index-standards
+    description: Red-green-refactor cycle, vertical slices, spec-first development, mocking rules, commit discipline
   value-objects:
-    description: Needs description - run /index-standards
+    description: Immutable domain types that eliminate primitive obsession and encapsulate validation invariants
 
 testing:
   config-module-cache-limitation:

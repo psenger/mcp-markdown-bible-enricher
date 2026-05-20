@@ -5,7 +5,9 @@ import { createRequire } from "node:module";
 import { enrichMarkdown } from "./enrichment.js";
 
 const _require = createRequire(import.meta.url);
-const { version: SERVER_VERSION } = _require("../package.json") as { version: string };
+const { version: SERVER_VERSION } = _require("../package.json") as {
+  version: string;
+};
 
 // ──────────────────────────────────────────────────────────────
 // Server
@@ -37,7 +39,9 @@ Pass the entire markdown document as input and receive the enriched version.`,
   {
     markdown: z
       .string()
-      .describe("The full Markdown document to enrich with Bible and CCC links"),
+      .describe(
+        "The full Markdown document to enrich with Bible and CCC links",
+      ),
   },
   async ({ markdown }) => {
     try {
@@ -48,11 +52,13 @@ Pass the entire markdown document as input and receive the enriched version.`,
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       return {
-        content: [{ type: "text", text: `Error enriching markdown: ${message}` }],
+        content: [
+          { type: "text", text: `Error enriching markdown: ${message}` },
+        ],
         isError: true,
       };
     }
-  }
+  },
 );
 
 // ──────────────────────────────────────────────────────────────
@@ -74,7 +80,9 @@ Note: File must be UTF-8 encoded. Large files (>10MB) may cause performance issu
     output_path: z
       .string()
       .optional()
-      .describe("Absolute path to write the enriched file (defaults to overwriting input_path)"),
+      .describe(
+        "Absolute path to write the enriched file (defaults to overwriting input_path)",
+      ),
   },
   async ({ input_path, output_path }) => {
     try {
@@ -84,9 +92,7 @@ Note: File must be UTF-8 encoded. Large files (>10MB) may cause performance issu
       const dest = output_path ?? input_path;
       await fs.writeFile(dest, enriched, "utf-8");
       return {
-        content: [
-          { type: "text", text: `Enriched and saved to: ${dest}` },
-        ],
+        content: [{ type: "text", text: `Enriched and saved to: ${dest}` }],
       };
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
@@ -95,7 +101,7 @@ Note: File must be UTF-8 encoded. Large files (>10MB) may cause performance issu
         isError: true,
       };
     }
-  }
+  },
 );
 
 // ──────────────────────────────────────────────────────────────
@@ -118,7 +124,7 @@ server.prompt(
         },
       },
     ],
-  })
+  }),
 );
 
 // ──────────────────────────────────────────────────────────────
@@ -165,7 +171,7 @@ Available Bible Enrichment Tools:
         },
       },
     ],
-  })
+  }),
 );
 
 // ──────────────────────────────────────────────────────────────

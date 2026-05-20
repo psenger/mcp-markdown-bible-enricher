@@ -24,7 +24,8 @@ export function loadConfig(): Config {
     //   "[[{abbrev}-{chapter2}#v{verse}]]"  -> [[Matt-05#v3]]
     //   "[[{abbrev} {chapter}:{verse}]]"    -> [[Matt 5:3]]
     //   "[[Bible/{abbrev}/{chapter}#v{verse}]]" -> [[Bible/Matt/5#v3]]
-    obsidianFormat: process.env.OBSIDIAN_FORMAT || "[[{abbrev}-{chapter2}#v{verse}]]",
+    obsidianFormat:
+      process.env.OBSIDIAN_FORMAT || "[[{abbrev}-{chapter2}#v{verse}]]",
 
     // Whether to include Obsidian wiki-links at all
     includeObsidianLinks: process.env.INCLUDE_OBSIDIAN_LINKS !== "false",
@@ -38,7 +39,7 @@ export function formatObsidianLink(
   abbrev: string,
   chapter: number,
   verse: number,
-  format: string
+  format: string,
 ): string {
   const chapter2 = chapter.toString().padStart(2, "0");
 
