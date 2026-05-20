@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-05-20
+
+### Added
+- Agentic scaffolding, CHANGELOG.md, CONTRIBUTING.md, SECURITY.md, GitHub issue/PR templates, and four Claude skills (changelog, start-a-release, complete-a-release, start-work-on-an-issue)
+
+### Security
+- Bumped fast-uri 3.1.0 → 3.1.2 to patch CVE-2026-6321 (path traversal via percent-encoded dot segments, GHSA-q3j6-qgpj-74h6) and CVE-2026-6322 (host confusion via percent-encoded authority delimiters, GHSA-v39h-62p7-jpjc)
+
 ## [0.2.3] - 2026-03-19
 
 ### Added
@@ -51,7 +59,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Catechism of the Catholic Church (CCC) reference linking via Catholic Cross Reference
 - Environment variable configuration: `BIBLE_VERSION`, `OBSIDIAN_FORMAT`, `INCLUDE_OBSIDIAN_LINKS`
 
-[Unreleased]: https://github.com/psenger/mcp-markdown-bible-enricher/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/psenger/mcp-markdown-bible-enricher/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/psenger/mcp-markdown-bible-enricher/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/psenger/mcp-markdown-bible-enricher/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/psenger/mcp-markdown-bible-enricher/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/psenger/mcp-markdown-bible-enricher/compare/v0.2.0...v0.2.1
