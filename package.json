@@ -33,7 +33,7 @@
     "url": "git+https://github.com/psenger/mcp-markdown-bible-enricher.git"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.1",
+    "@modelcontextprotocol/sdk": "^1.32.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
