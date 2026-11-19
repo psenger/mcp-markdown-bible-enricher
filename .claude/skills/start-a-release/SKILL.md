@@ -2,7 +2,8 @@
 name: start-a-release
 description: >
   Opens a release PR for a given version. Validates the environment, cuts a
-  release/v{VERSION} branch from the default branch, bumps package.json, updates
+  release/v{VERSION} branch from the default branch, bumps package.json and
+  package-lock.json, updates
   CHANGELOG.md via the changelog skill, commits, pushes, and opens a PR to main.
   Invoked explicitly as /start-a-release <version> (e.g. /start-a-release 0.3.0).
   Do not trigger on general conversation about releases — only activate on an
@@ -120,9 +121,9 @@ Release branch:   release/v{VERSION}  (new, from {DEFAULT_BRANCH})
 
 Actions:
   1. git checkout -b release/v{VERSION}
-  2. Bump version in package.json  {CURRENT_VERSION} → {VERSION}
+  2. Bump version in package.json and package-lock.json  {CURRENT_VERSION} → {VERSION}
   3. Run /changelog {VERSION}  (update CHANGELOG.md)
-  4. git add package.json CHANGELOG.md
+  4. git add package.json package-lock.json CHANGELOG.md
   5. git commit -m "chore: release {VERSION}"
   6. git push origin release/v{VERSION}
   7. Open PR:  release/v{VERSION} → {DEFAULT_BRANCH}
@@ -164,18 +165,25 @@ git checkout -b release/v{VERSION}
 
 ---
 
-## Step 5 — Bump the Version in package.json
+## Step 5 — Bump the Version in package.json and package-lock.json
 
-Read `package.json`, update the `"version"` field to `VERSION`, and write it back.
-Preserve all other content and formatting exactly — do not reformat the file.
-
-Verify the change:
+Use npm so both files change together. Do not edit `package.json` by hand: that leaves the
+root `version` fields in `package-lock.json` stale.
 
 ```bash
-node -e "const p = JSON.parse(require('fs').readFileSync('package.json','utf8')); console.log(p.version)"
+npm version {VERSION} --no-git-tag-version
 ```
 
-Confirm it prints `{VERSION}`. If not, stop and report the error.
+`--no-git-tag-version` stops npm from committing or tagging; the commit happens in Step 7 and
+the tag belongs to `complete-a-release`.
+
+Verify both files:
+
+```bash
+node -e "const f=require('fs');const p=JSON.parse(f.readFileSync('package.json','utf8')).version;const l=JSON.parse(f.readFileSync('package-lock.json','utf8'));console.log(p,l.version,l.packages[''].version)"
+```
+
+Confirm all three values print `{VERSION}`. If not, stop and report the error.
 
 ---
 
@@ -201,7 +209,7 @@ as `RELEASE_NOTES` — it will be used as the PR body and later as the GitHub re
 ## Step 7 — Commit the Changes
 
 ```bash
-git add package.json CHANGELOG.md
+git add package.json package-lock.json CHANGELOG.md
 git commit -m "chore: release {VERSION}"
 ```
 
