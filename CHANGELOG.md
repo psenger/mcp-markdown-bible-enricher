@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-18
+
+### Changed
+- Internal maintenance and dependency updates
+
 ## [0.3.0] - 2026-11-12
 
 ### Changed
@@ -75,7 +80,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Catechism of the Catholic Church (CCC) reference linking via Catholic Cross Reference
 - Environment variable configuration: `BIBLE_VERSION`, `OBSIDIAN_FORMAT`, `INCLUDE_OBSIDIAN_LINKS`
 
-[Unreleased]: https://github.com/psenger/mcp-markdown-bible-enricher/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/psenger/mcp-markdown-bible-enricher/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/psenger/mcp-markdown-bible-enricher/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/psenger/mcp-markdown-bible-enricher/compare/v0.2.6...v0.3.0
 [0.2.6]: https://github.com/psenger/mcp-markdown-bible-enricher/compare/v0.2.5...v0.2.6
 [0.2.5]: https://github.com/psenger/mcp-markdown-bible-enricher/compare/v0.2.4...v0.2.5
